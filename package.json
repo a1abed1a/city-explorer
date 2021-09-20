@@ -7,7 +7,7 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "axios": "^0.21.4",
-    "bootstrap": "^5.1.1",
+    "bootstrap": "^5.1.0",
     "env": "0.0.2",
     "env-cmd": "^10.1.0",
     "react": "^17.0.2",
