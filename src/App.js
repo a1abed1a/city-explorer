@@ -9,6 +9,7 @@ class App extends React.Component {
     this.state = {
       result: {},
       weather: [],
+      movie: [],
       location: '',
       showCard: false,
       showError: false
@@ -24,15 +25,18 @@ class App extends React.Component {
 
       let resultUrl = `https://us1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_KEY}&q=${this.state.location}&format=json`;
       let temResult = await axios.get(resultUrl);
-      let weatherUrl = `${process.env.REACT_APP_SERVER_LINK}/weather?locatioName=${this.state.location}`;
+      let weatherUrl = `${process.env.REACT_APP_SERVER_LINK}/weather?lat=${temResult.data[0].lat}&lon=${temResult.data[0].lon}`;
       let temWeather = await axios.get(weatherUrl);
+      let movieUrl = `${process.env.REACT_APP_SERVER_LINK}/movie?title=${this.state.location}`;
+      let temMovie = await axios.get(movieUrl);
+
       this.setState({
         result: temResult.data[0],
         weather: temWeather.data,
+        movie: temMovie.data,
         showCard: true,
         showError: false
       })
-
     } else {
       this.setState({
         showError: true
@@ -73,27 +77,48 @@ class App extends React.Component {
                 <Card.Text>latitude: {this.state.result.lat}</Card.Text>
                 <Card.Text>longitude: {this.state.result.lon}</Card.Text>
                 <Card.Img variant="top" src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_KEY}&center=${this.state.result.lat},${this.state.result.lon}&zoom=10`} style={{ border: 'solid black 2px' }} />
-                {
+                <Table striped bordered hover >
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      this.state.weather.map((ele, idx) => {
+                        return (
+                          <tr key={idx}>
+                            <td>{ele.description}</td>
+                            <td>{ele.date}</td>
+                          </tr>
+                        );
+                      })
+                    }
+                  </tbody>
+                </Table>
+                <hr/>
+                {this.state.movie.length > 0 &&
                   <Table striped bordered hover >
-                    <thead>
-                      <tr>
-                        <th>Description</th>
-                        <th>Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {
-                        this.state.weather.map((ele, idx) => {
-                          return (
-                              <tr key={idx}>
-                                <td>{ele.description}</td>
-                                <td>{ele.date}</td>
-                              </tr>
-                          );
-                        })
-                      }
-                    </tbody>
-                  </Table>
+                  <thead>
+                    <tr>
+                      <th>Movie Title</th>
+                      <th>Rating</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      this.state.movie.map((ele, idx) => {
+                        return (
+                          <tr key={idx}>
+                            <td>{ele.title}</td>
+                            <td>{ele.vote_average}</td>
+                          </tr>
+                        );
+                      })
+                    }
+                  </tbody>
+                </Table>
                 }
               </Card.Body>
             </Card>
