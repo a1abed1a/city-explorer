@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Button, Card, Alert } from 'react-bootstrap'
+import { Form, Button, Card, Alert, Table } from 'react-bootstrap'
 import axios from 'axios'
 
 class App extends React.Component {
@@ -8,6 +8,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       result: {},
+      weather: [],
       location: '',
       showCard: false,
       showError: false
@@ -16,23 +17,23 @@ class App extends React.Component {
 
   sub = async (e) => {
     e.preventDefault();
-    console.log(e.target.locationForm.value)
     if (e.target.locationForm.value) {
-      console.log('lolol')
       await this.setState({
         location: e.target.locationForm.value
       })
 
-      let url = `https://us1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_KEY}&q=${this.state.location}&format=json`;
-      let temResult = await axios.get(url);
-      console.log('cccccccc', temResult.data[0]);
-
+      let resultUrl = `https://us1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_KEY}&q=${this.state.location}&format=json`;
+      let temResult = await axios.get(resultUrl);
+      let weatherUrl = `${process.env.REACT_APP_SERVER_LINK}/weather?locatioName=${this.state.location}`;
+      let temWeather = await axios.get(weatherUrl);
       this.setState({
         result: temResult.data[0],
-        showCard: true
+        weather: temWeather.data,
+        showCard: true,
+        showError: false
       })
+
     } else {
-      console.log('l')
       this.setState({
         showError: true
       })
@@ -43,9 +44,9 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Form onSubmit={this.sub}>
+        <Form onSubmit={this.sub} style={{ width: '25%', margin: 'auto' }}>
           <Form.Group >
-            <Form.Label>Location</Form.Label>
+            <Form.Label style={{ fontSize: '30px' }}>Location</Form.Label>
             <Form.Control type="text" name='locationForm' placeholder="Enter Location" />
           </Form.Group>
           <Button type="submit">
@@ -53,7 +54,7 @@ class App extends React.Component {
           </Button>
         </Form>
 
-        <Alert show={this.state.showError} variant="success">
+        <Alert show={this.state.showError} variant="success" style={{ width: '25%', margin: '10px auto' }}>
           <Alert.Heading>Enter a valid location</Alert.Heading>
           <div className="d-flex justify-content-end">
             <Button onClick={() => this.setState({
@@ -65,18 +66,38 @@ class App extends React.Component {
         </Alert>
 
         {this.state.showCard &&
-          <>
-            <Card style={{ width: '18rem' }}>
+          <div>
+            <Card style={{ width: '30rem', margin: '10px auto', border: 'solid black 2px' }}>
               <Card.Body>
                 <Card.Title>{this.state.location}</Card.Title>
-                <Card.Img variant="top" src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_KEY}&center=${this.state.result.lat},${this.state.result.lon}&zoom=10`} />
-                <Card.Text>
-                  <p>latitude: {this.state.result.lat}</p>
-                  <p>longitude: {this.state.result.lon} </p>
-                </Card.Text>
+                <Card.Text>latitude: {this.state.result.lat}</Card.Text>
+                <Card.Text>longitude: {this.state.result.lon}</Card.Text>
+                <Card.Img variant="top" src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_KEY}&center=${this.state.result.lat},${this.state.result.lon}&zoom=10`} style={{ border: 'solid black 2px' }} />
+                {
+                  <Table striped bordered hover >
+                    <thead>
+                      <tr>
+                        <th>Description</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {
+                        this.state.weather.map((ele, idx) => {
+                          return (
+                              <tr key={idx}>
+                                <td>{ele.description}</td>
+                                <td>{ele.date}</td>
+                              </tr>
+                          );
+                        })
+                      }
+                    </tbody>
+                  </Table>
+                }
               </Card.Body>
             </Card>
-          </>
+          </div>
         }
 
       </div>
