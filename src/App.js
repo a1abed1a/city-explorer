@@ -1,6 +1,8 @@
 import React from 'react'
 import { Form, Button, Card, Alert, Table } from 'react-bootstrap'
 import axios from 'axios'
+import Weather from './modules/weather';
+import Movies from './modules/movies';
 
 class App extends React.Component {
 
@@ -73,52 +75,18 @@ class App extends React.Component {
           <div>
             <Card style={{ width: '30rem', margin: '10px auto', border: 'solid black 2px' }}>
               <Card.Body>
-                <Card.Title>{this.state.location}</Card.Title>
-                <Card.Text>latitude: {this.state.result.lat}</Card.Text>
-                <Card.Text>longitude: {this.state.result.lon}</Card.Text>
+                <Card.Title style={{fontSize:'30px'}}>{this.state.location}</Card.Title>
+                  <Card.Text style={{float: 'left'}}>latitude: {this.state.result.lat}</Card.Text>
+                  <Card.Text style={{ float:'right'}}>longitude: {this.state.result.lon}</Card.Text>
                 <Card.Img variant="top" src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_KEY}&center=${this.state.result.lat},${this.state.result.lon}&zoom=10`} style={{ border: 'solid black 2px' }} />
-                <Table striped bordered hover >
-                  <thead>
-                    <tr>
-                      <th>Description</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      this.state.weather.map((ele, idx) => {
-                        return (
-                          <tr key={idx}>
-                            <td>{ele.description}</td>
-                            <td>{ele.date}</td>
-                          </tr>
-                        );
-                      })
-                    }
-                  </tbody>
-                </Table>
-                <hr/>
+                <div>
+                  <Weather weather={this.state.weather} />
+                </div>
+                <hr />
                 {this.state.movie.length > 0 &&
-                  <Table striped bordered hover >
-                  <thead>
-                    <tr>
-                      <th>Movie Title</th>
-                      <th>Rating</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      this.state.movie.map((ele, idx) => {
-                        return (
-                          <tr key={idx}>
-                            <td>{ele.title}</td>
-                            <td>{ele.vote_average}</td>
-                          </tr>
-                        );
-                      })
-                    }
-                  </tbody>
-                </Table>
+                  <div>
+                    <Movies movie={this.state.movie} />
+                  </div>
                 }
               </Card.Body>
             </Card>
